@@ -1,0 +1,44 @@
+@startuml C4_MICROSERVICE_SYSTEM_CONTEXT_DIAGRAM
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container diagram for Smart Home System
+
+Person(user, "User", "A resident of the smart home")
+Person(admin, "Administrator", "System administrator")
+
+System_Boundary(c1, "Smart Home System") {
+    Container(api_gateway, "API Gateway", "Spring Cloud Gateway", "Provides a single entry point for all client-side requests")
+    Container(user_service, "User Management Service", "Spring Boot", "Manages users and authentication")
+    Container(device_service, "Device Management Service", "Spring Boot", "Manages smart home devices")
+    Container(heating_service, "Heating Control Service", "Spring Boot", "Controls heating devices")
+    Container(lighting_service, "Lighting Control Service", "Spring Boot", "Controls lighting devices")
+    Container(security_service, "Security Service", "Spring Boot", "Manages security devices like gates and cameras")
+    Container(telemetry_service, "Telemetry Service", "Spring Boot", "Collects and processes sensor data")
+    Container(scenario_service, "Scenario Management Service", "Spring Boot", "Manages automation scenarios")
+    Container(notification_service, "Notification Service", "Spring Boot", "Sends notifications to users")
+    ContainerDb(kafka, "Kafka", "Apache Kafka", "Event streaming platform for inter-service communication")
+}
+
+System_Ext(iot_devices, "IoT Devices", "Smart home devices and sensors")
+
+Rel(user, api_gateway, "Uses", "HTTPS")
+Rel(admin, api_gateway, "Manages", "HTTPS")
+Rel(api_gateway, user_service, "Routes requests to", "HTTP")
+Rel(api_gateway, device_service, "Routes requests to", "HTTP")
+Rel(api_gateway, heating_service, "Routes requests to", "HTTP")
+Rel(api_gateway, lighting_service, "Routes requests to", "HTTP")
+Rel(api_gateway, security_service, "Routes requests to", "HTTP")
+Rel(api_gateway, scenario_service, "Routes requests to", "HTTP")
+
+Rel(device_service, kafka, "Publishes device events to", "Kafka protocol")
+Rel(heating_service, kafka, "Publishes/Subscribes to heating events", "Kafka protocol")
+Rel(lighting_service, kafka, "Publishes/Subscribes to lighting events", "Kafka protocol")
+Rel(security_service, kafka, "Publishes/Subscribes to security events", "Kafka protocol")
+Rel(telemetry_service, kafka, "Subscribes to sensor data", "Kafka protocol")
+Rel(scenario_service, kafka, "Publishes/Subscribes to scenario events", "Kafka protocol")
+Rel(notification_service, kafka, "Subscribes to notification events", "Kafka protocol")
+
+Rel(iot_devices, device_service, "Sends data to/Receives commands from", "IoT protocols")
+
+LAYOUT_WITH_LEGEND()
+@enduml

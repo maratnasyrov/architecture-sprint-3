@@ -1,0 +1,28 @@
+@startuml COMPONENT_DEVICE_MANAGMENT_SERVICE
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component diagram for Device Management Service
+
+Container_Boundary(c1, "Device Management Service") {
+    Component(api, "Device API", "Spring MVC REST Controller", "Handles HTTP requests for device management")
+    Component(service, "Device Service", "Spring Service", "Implements device management business logic")
+    Component(repo, "Device Repository", "Spring Data JPA", "Handles device data persistence")
+    Component(kafka_producer, "Kafka Producer", "Spring Kafka", "Publishes device events to Kafka")
+    Component(kafka_consumer, "Kafka Consumer", "Spring Kafka", "Consumes device-related events from Kafka")
+    Component(device_manager, "Device Manager", "Custom Component", "Manages device state and operations")
+}
+
+ContainerDb(db, "Device Database", "PostgreSQL", "Stores device information")
+Container_Ext(kafka, "Kafka", "Apache Kafka", "Event streaming platform")
+
+Rel(api, service, "Uses")
+Rel(service, repo, "Uses")
+Rel(repo, db, "Reads from and writes to")
+Rel(service, kafka_producer, "Uses")
+Rel(kafka_producer, kafka, "Publishes events to")
+Rel(kafka, kafka_consumer, "Consumes events from")
+Rel(kafka_consumer, service, "Notifies")
+Rel(service, device_manager, "Uses")
+
+LAYOUT_WITH_LEGEND()
+@enduml
