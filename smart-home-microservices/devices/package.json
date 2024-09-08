@@ -1,5 +1,5 @@
 {
-  "name": "@smart-home/devices",
+  "name": "devices",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/kafka-node": "^3.0.0",
+    "typescript": "^4.5.4",
     "ts-node": "^10.4.0"
   }
 }
