@@ -1,10 +1,10 @@
 import express from 'express';
+import { initializeKafka, shutdownKafka, consumeMessages } from './kafka';
 import {
   TelemetryData,
   getLatestTelemetry,
   saveTelemetryData,
 } from './telemetry';
-import { consumeMessages } from './kafka';
 
 const app = express();
 app.use(express.json());
@@ -18,10 +18,23 @@ app.get('/api/telemetry/:deviceId/latest', (req, res) => {
   }
 });
 
-app.listen(3001, () => console.log('Telemetry service listening on port 3001'));
+async function startServer() {
+  await initializeKafka();
 
-// Start consuming Kafka messages
-consumeMessages('device-telemetry', (message: string) => {
-  const telemetryData: TelemetryData = JSON.parse(message);
-  saveTelemetryData(telemetryData);
+  await consumeMessages('device-telemetry', async ({ message }) => {
+    const telemetryData: TelemetryData = JSON.parse(message.value!.toString());
+    saveTelemetryData(telemetryData);
+  });
+
+  app.listen(3001, () =>
+    console.log('Telemetry service listening on port 3001')
+  );
+}
+
+startServer().catch(console.error);
+
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  await shutdownKafka();
+  process.exit(0);
 });

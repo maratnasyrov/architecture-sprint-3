@@ -1,53 +1,45 @@
 version: '3'
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: confluentinc/cp-zookeeper:latest
     ports:
       - '2181:2181'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: wurstmeister/kafka
+    image: confluentinc/cp-kafka:latest
     ports:
-      - '9092:9092'
+      - '9093:9093' # Изменено с 9092 на 9093
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9093 # Изменено на 9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
 
   devices:
     build:
-      context: ./packages/devices
+      context: ./devices
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       - kafka
 
   telemetry:
     build:
-      context: ./packages/telemetry
+      context: ./telemetry
       dockerfile: Dockerfile
     ports:
       - '3001:3001'
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       - kafka
-
-  api-gateway:
-    build:
-      context: ./packages/api-gateway
-      dockerfile: Dockerfile
-    ports:
-      - '8080:8080'
-    environment:
-      - DEVICES_SERVICE_URL=http://devices:3000
-      - TELEMETRY_SERVICE_URL=http://telemetry:3001
-    depends_on:
-      - devices
-      - telemetry

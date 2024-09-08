@@ -1,19 +1,39 @@
-import { Consumer, KafkaClient } from 'kafka-node';
+import { Kafka, EachMessagePayload } from 'kafkajs';
 
-const client = new KafkaClient({ kafkaHost: 'localhost:9092' });
+const kafka = new Kafka({
+  clientId: 'my-app',
+  brokers: [process.env.KAFKA_BOOTSTRAP_SERVERS || 'kafka:29092'],
+});
 
-export function consumeMessages(
+const producer = kafka.producer();
+const consumer = kafka.consumer({ groupId: 'my-group' });
+
+export async function initializeKafka(): Promise<void> {
+  await producer.connect();
+  await consumer.connect();
+}
+
+export async function shutdownKafka(): Promise<void> {
+  await producer.disconnect();
+  await consumer.disconnect();
+}
+
+export async function produceMessage(
   topic: string,
-  callback: (message: string) => void
-): void {
-  const consumer = new Consumer(client, [{ topic }], { autoCommit: true });
-
-  consumer.on('message', (message) => {
-    console.log('Received Kafka message:', message.value);
-    callback(message.value.toString());
+  message: string
+): Promise<void> {
+  await producer.send({
+    topic,
+    messages: [{ value: message }],
   });
+}
 
-  consumer.on('error', (err) => {
-    console.error('Error consuming Kafka message:', err);
+export async function consumeMessages(
+  topic: string,
+  callback: (message: EachMessagePayload) => Promise<void>
+): Promise<void> {
+  await consumer.subscribe({ topic, fromBeginning: true });
+  await consumer.run({
+    eachMessage: callback,
   });
 }
