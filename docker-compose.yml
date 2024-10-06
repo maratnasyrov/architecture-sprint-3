@@ -12,7 +12,7 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d/
+      - ${PWD}/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     networks:
       - backend
 
@@ -24,8 +24,8 @@ services:
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
+      - DATABASE_USER=app_user
+      - DATABASE_PASSWORD=app_password
       - DATABASE_NAME=device_db
     depends_on:
       - postgres
@@ -42,8 +42,8 @@ services:
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
+      - DATABASE_USER=app_user
+      - DATABASE_PASSWORD=app_password
       - DATABASE_NAME=device_db
     depends_on:
       - postgres

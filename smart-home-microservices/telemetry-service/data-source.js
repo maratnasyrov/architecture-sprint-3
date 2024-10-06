@@ -1,4 +1,7 @@
-module.exports = {
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { DataSource } = require('typeorm');
+
+const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DATABASE_HOST || 'localhost',
   port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
@@ -7,7 +10,8 @@ module.exports = {
   database: process.env.DATABASE_NAME || 'device_db',
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/migrations/*.js'],
-  cli: {
-    migrationsDir: 'src/migrations',
-  },
-};
+  synchronize: false, // рекомендуется отключать в продакшн-среде
+  logging: true,
+});
+
+module.exports = AppDataSource;

@@ -7,10 +7,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     DevicesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'postgres',
       port: 5432,
-      username: 'postgres',
-      password: 'postgres',
+      username: 'app_user',
+      password: 'app_password',
       database: 'device_db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
