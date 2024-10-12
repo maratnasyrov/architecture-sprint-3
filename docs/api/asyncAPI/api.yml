@@ -1,0 +1,34 @@
+asyncapi: 2.0.0
+info:
+  title: Smart Home System Async API
+  version: 1.0.0
+  description: Asynchronous API for telemetry data in Smart Home System
+
+channels:
+  device.telemetry:
+    publish:
+      summary: Publish telemetry data for a device
+      message:
+        $ref: '#/components/messages/TelemetryData'
+
+components:
+  messages:
+    TelemetryData:
+      payload:
+        type: object
+        properties:
+          device_id:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+          type:
+            type: string
+          value:
+            type: number
+      examples:
+        - payload:
+            device_id: 'device123'
+            timestamp: '2023-06-05T14:30:00Z'
+            type: 'temperature'
+            value: 22.5

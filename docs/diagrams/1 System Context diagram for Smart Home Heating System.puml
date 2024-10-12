@@ -1,0 +1,16 @@
+@startuml C4_SYSTEM_CONTEXT_DIAGRAM
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context diagram for Smart Home Heating System
+
+Person(user, "User", "A resident of the smart home")
+System(smartHomeSystem, "Smart Home System", "Allows users to control and monitor their home heating")
+System_Ext(temperatureSensors, "Temperature Sensors", "IoT devices that measure temperature")
+System_Ext(heatingDevices, "Heating Devices", "IoT devices that control heating")
+
+Rel(user, smartHomeSystem, "Uses", "HTTPS")
+Rel(smartHomeSystem, temperatureSensors, "Reads temperature from", "IoT protocol")
+Rel(smartHomeSystem, heatingDevices, "Controls", "IoT protocol")
+
+LAYOUT_WITH_LEGEND()
+@enduml
