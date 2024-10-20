@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Smart Home System API
+  version: 1.0.0
+  description: API for managing devices and telemetry in Smart Home System
+
+paths:
+  /devices/{device_id}:
+    get:
+      summary: Get device information
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Device not found
+
+  /devices/{device_id}/status:
+    put:
+      summary: Update device status
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceStatus'
+      responses:
+        '200':
+          description: Status updated successfully
+        '404':
+          description: Device not found
+
+  /devices/{device_id}/commands:
+    post:
+      summary: Send command to device
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCommand'
+      responses:
+        '200':
+          description: Command sent successfully
+        '404':
+          description: Device not found
+
+  /devices/{device_id}/telemetry/latest:
+    get:
+      summary: Get latest telemetry data
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelemetryData'
+        '404':
+          description: Device not found
+
+  /devices/{device_id}/telemetry:
+    get:
+      summary: Get historical telemetry data
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryData'
+        '404':
+          description: Device not found
+
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+
+    DeviceStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [on, off]
+
+    DeviceCommand:
+      type: object
+      properties:
+        command:
+          type: string
+        parameters:
+          type: object
+
+    TelemetryData:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+        value:
+          type: number

@@ -1,0 +1,75 @@
+@startuml ER_Diagram_for_Smart_Home_System
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) #x
+
+Table(User, "User") {
+    primary_key(id)
+    username
+    email
+    password_hash
+    role
+}
+
+Table(House, "House") {
+    primary_key(id)
+    foreign_key(owner_id)
+    name
+    address
+}
+
+Table(Device, "Device") {
+    primary_key(id)
+    foreign_key(type_id)
+    foreign_key(house_id)
+    foreign_key(module_id)
+    name
+    serial_number
+    status
+}
+
+Table(DeviceType, "DeviceType") {
+    primary_key(id)
+    name
+    description
+}
+
+Table(Module, "Module") {
+    primary_key(id)
+    name
+    description
+}
+
+Table(TelemetryData, "TelemetryData") {
+    primary_key(id)
+    foreign_key(device_id)
+    timestamp
+    data_type
+    value
+}
+
+Table(Scenario, "Scenario") {
+    primary_key(id)
+    foreign_key(house_id)
+    name
+    description
+    is_active
+}
+
+Table(Notification, "Notification") {
+    primary_key(id)
+    foreign_key(user_id)
+    message
+    timestamp
+    is_read
+}
+
+User "1" -- "0..*" House : owns
+User "1" -- "0..*" Notification : receives
+House "1" -- "0..*" Device : contains
+House "1" -- "0..*" Scenario : has
+Device "0..*" -- "1" DeviceType : is of
+Device "0..*" -- "1" Module : belongs to
+Device "1" -- "0..*" TelemetryData : generates
+
+@enduml

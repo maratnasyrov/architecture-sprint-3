@@ -1,0 +1,51 @@
+@startuml CLASS_DIAGRAM_DEVICE_MANAGER
+title Class diagram for Device Manager
+
+class DeviceManager {
+  - deviceRepository: DeviceRepository
+  - kafkaProducer: KafkaProducer
+  + addDevice(device: Device): Device
+  + removeDevice(deviceId: String): void
+  + updateDeviceState(deviceId: String, state: DeviceState): void
+  + getDeviceState(deviceId: String): DeviceState
+  - publishDeviceEvent(event: DeviceEvent): void
+}
+
+class Device {
+  - id: String
+  - name: String
+  - type: DeviceType
+  - state: DeviceState
+}
+
+enum DeviceType {
+  HEATING
+  LIGHTING
+  SECURITY
+}
+
+class DeviceState {
+  - isOn: boolean
+  - parameters: Map<String, String>
+}
+
+class DeviceEvent {
+  - deviceId: String
+  - eventType: DeviceEventType
+  - timestamp: LocalDateTime
+  - payload: Map<String, String>
+}
+
+enum DeviceEventType {
+  ADDED
+  REMOVED
+  STATE_CHANGED
+}
+
+DeviceManager --> "0..*" Device: manages
+Device --> "1" DeviceType
+Device --> "1" DeviceState
+DeviceManager ..> DeviceEvent: publishes
+DeviceEvent --> "1" DeviceEventType
+
+@enduml
